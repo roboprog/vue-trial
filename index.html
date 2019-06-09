@@ -1,14 +1,21 @@
 <html>
     <head>
-        <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.7/angular.min.js">
+        <meta charset="UTF-8">
+        <!-- library script CDN refs from https://vuejs.org/v2/guide/#Getting-Started -->
+        <!-- work around load timing issue as per https://stackoverflow.com/a/45780935 -->
+        <!-- development version, includes helpful console warnings -->
+        <script defer src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js">
         </script>
-        <script src="app.js" >
+<!--
+        < !-- production version, optimized for size and speed -- >
+        <script defer src="https://cdn.jsdelivr.net/npm/vue">
         </script>
+-->
+        <script defer src="app.js" >
+        </script>
+        <!-- TODO - script bundling/minification -->
     </head>
-    <body
-        ng-app="demo"
-        ng-controller="demoCtrl"
-    >
+    <body>
         <!-- note: background colors are "a bit" exaggerated to differentiate sections -->
         <style>
             * {
@@ -66,91 +73,100 @@
                 font-size: 0.5em ;
             }
         </style>
-        <div id="hdr">
-            <h1>Raffle Demo</h1>
-        </div>
-        <div id="msgs">
-            <ul>
-                <li
-                    ng-repeat="msg in mod.msgs"
-                >
-                    {{ msg }}
-                </li>
-            </ul>
-        </div>
-        <div id="results">
-            <fieldset>
-                <legend>Results</legend>
-                <input type="button" value="Draw" />
-                <div></div>
-                <label>Winner:</label>
-                <span>{{ mod.winner.fname }} {{ mod.winner.lname }}</span>
-            </fieldset>
-        </div>
-        <div id="entry">
-            <fieldset>
-                <!-- using empty divs as spacers, as cannot assign size to br/ -->
-                <legend>Participant Entry</legend>
-                <label for="fname">First Name:</label>
-                <input id="fname" width="20"
-                   ng-model="mod.entry.fname"
-                >
-                <div></div>
-                <label for="lname">Last Name:</label>
-                <input id="lname" width="20"
-                   ng-model="mod.entry.lname"
-                >
-                <div></div>
-                <label for="tickets">Number of Tickets:</label>
-                <!--
-                    see
-                    https://www.undefinednull.com/2014/08/11/a-brief-walk-through-of-the-ng-options-in-angularjs/
-                    as the Angular documentation for ngOptions / ng-options is somewhat opaque.
-                -->
-                <select id="tickets"
-                    ng-model="mod.entry.tickets"
-                    ng-options="num for num in [ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 ]"
-                > </select>
-                <div></div>
-                <input type="button" value="Delete" />
-            </fieldset>
-        </div>
-        <div id="list">
-            <fieldset>
-                <legend>Participants</legend>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>First Name</th>
-                            <th>Last Name</th>
-                            <th>Number of Tickets</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <!-- TODO: style="font-size: 1.25em; font-weight: bold;" on selected row -->
-                        <tr
-                            ng-repeat="entrant in mod.entrants"
+        <!-- Vue cannot be anchored to the body tag, nor will it allow a style block within its template -->
+        <div id="demo" >
+            <div id="hdr">
+                <h1>Raffle Demo</h1>
+            </div>
+            <div id="msgs">
+                <ul>
+                    <li
+                        v-for="msg in mod.msgs"
+                    >
+                        {{ msg }}
+                    </li>
+                </ul>
+            </div>
+            <div id="results">
+                <fieldset>
+                    <legend>Results</legend>
+                    <input type="button" value="Draw" />
+                    <div></div>
+                    <label>Winner:</label>
+                    <span>{{ mod.winner.fname }} {{ mod.winner.lname }}</span>
+                </fieldset>
+            </div>
+            <div id="entry">
+                <fieldset>
+                    <!-- using empty divs as spacers, as cannot assign size to br/ -->
+                    <legend>Participant Entry</legend>
+                    <label for="fname">First Name:</label>
+                    <input id="fname" width="20"
+                       v-model="mod.entry.fname"
+                    >
+                    <div></div>
+                    <label for="lname">Last Name:</label>
+                    <input id="lname" width="20"
+                       v-model="mod.entry.lname"
+                    >
+                    <div></div>
+                    <label for="tickets">Number of Tickets:</label>
+                    <!--
+                        see
+                        https://www.undefinednull.com/2014/08/11/a-brief-walk-through-of-the-ng-options-in-angularjs/
+                        as the Angular documentation for ngOptions / ng-options is somewhat opaque.
+                    -->
+                    <select id="tickets"
+                        v-model="mod.entry.tickets"
+                    >
+                        <option
+                            v-for="option in [ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 ]"
+                            v-bind:value="option"
                         >
-                            <td>{{ entrant.fname }}</td>
-                            <td>{{ entrant.lname }}</td>
-                            <td>{{ entrant.tickets }}</td>
-                        </tr>
-                    </tbody>
-                    <tfoot>
-                        <tr>
-                            <th>
-                                <input type="button" value="Add" />
-                            </th>
-                        </tr>
-                    </tfoot>
-                </table>
-            </fieldset>
-        </div>
-        <div id="ftr">
-            <p>
-                Copyright {{ mod.meta.cr_yr }}, {{ mod.meta.corp_alias }},
-                void where prohibited by law...
-            </p>
+                            {{ option }}
+                        </option>
+                    </select>
+                    <div></div>
+                    <input type="button" value="Delete" />
+                </fieldset>
+            </div>
+            <div id="list">
+                <fieldset>
+                    <legend>Participants</legend>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>First Name</th>
+                                <th>Last Name</th>
+                                <th>Number of Tickets</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- TODO: style="font-size: 1.25em; font-weight: bold;" on selected row -->
+                            <tr
+                                v-for="entrant in mod.entrants"
+                            >
+                                <td>{{ entrant.fname }}</td>
+                                <td>{{ entrant.lname }}</td>
+                                <td>{{ entrant.tickets }}</td>
+                            </tr>
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <th>
+                                    <input type="button" value="Add" />
+                                </th>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </fieldset>
+            </div>
+            <div id="ftr">
+                <p>
+                    Copyright {{ mod.meta.cr_yr }}, {{ mod.meta.corp_alias }},
+                    void where prohibited by law...
+                </p>
+            </div>
         </div>
     </body>
 </html>
