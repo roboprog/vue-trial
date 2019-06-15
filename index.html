@@ -78,15 +78,8 @@
             <div id="hdr">
                 <h1>Raffle Demo</h1>
             </div>
-            <div id="msgs">
-                <ul>
-                    <li
-                        v-for="msg in mod.msgs"
-                    >
-                        {{ msg }}
-                    </li>
-                </ul>
-            </div>
+            <raf-msgs></raf-msgs>
+            <!-- TODO - component -->
             <div id="results">
                 <fieldset>
                     <legend>Results</legend>
@@ -96,6 +89,7 @@
                     <span>{{ mod.winner.fname }} {{ mod.winner.lname }}</span>
                 </fieldset>
             </div>
+            <!-- TODO - component -->
             <div id="entry">
                 <fieldset>
                     <!-- using empty divs as spacers, as cannot assign size to br/ -->
@@ -130,6 +124,7 @@
                     <input type="button" value="Delete" />
                 </fieldset>
             </div>
+            <!-- TODO - component -->
             <div id="list">
                 <fieldset>
                     <legend>Participants</legend>
@@ -161,6 +156,7 @@
                     </table>
                 </fieldset>
             </div>
+            <!-- TODO - component -->
             <div id="ftr">
                 <p>
                     Copyright {{ mod.meta.cr_yr }}, {{ mod.meta.corp_alias }},
