@@ -25,6 +25,18 @@
         /** displays messages (nominally near the top of the page - "flash message" style) */
         MSGS: 'raf-msgs',
 
+        /** generates and displays results of raffle */
+        RES: 'raf-res',
+
+        /** edits participant entry */
+        PART_EDIT: 'raf-part-edit',
+
+        /** lists participants */
+        PART_LIST: 'raf-part-list',
+
+        /** page footer */
+        PG_FTR: 'raf-pg-ftr',
+
     } )
 
     /** global application state (TODO - put in store manager like Vuex) */
@@ -34,7 +46,7 @@
         meta: {
 
             /** copyright year */
-            cr_yr: 2016,
+            cr_yr: 2019,
 
             /** how is the company branded *this* year? */
             corp_alias: 'AcmeCorp',
@@ -89,7 +101,156 @@
 
     } )()
 
-    // make sure components are defined *before* you start the app
+    // IIFE for results component
+    ; ( function () {
+
+        const template = `
+<div id="results">
+    <fieldset>
+        <legend>Results</legend>
+        <input type="button" value="Draw" />
+        <div></div>
+        <label>Winner:</label>
+        <span>{{ winner.fname }} {{ winner.lname }}</span>
+    </fieldset>
+</div>
+        `
+
+        /** generates and displays results of raffle */
+        Vue.component(
+            COMP.RES,
+            {
+                template,
+                // no props - it's a singleton
+                data: () => ( { winner: app_state.winner, } ),
+            }
+        )
+
+    } )()
+
+    // IIFE for participant entry component
+    ; ( function () {
+
+        const template = `
+<div id="entry">
+    <fieldset>
+        <!-- using empty divs as spacers, as cannot assign size to br/ -->
+        <legend>Participant Entry</legend>
+        <label for="fname">First Name:</label>
+        <input id="fname" width="20"
+           v-model="entry.fname"
+        >
+        <div></div>
+        <label for="lname">Last Name:</label>
+        <input id="lname" width="20"
+           v-model="entry.lname"
+        >
+        <div></div>
+        <label for="tickets">Number of Tickets:</label>
+        <select id="tickets"
+            v-model="entry.tickets"
+        >
+            <option
+                v-for="option in [ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 ]"
+                v-bind:value="option"
+            >
+                {{ option }}
+            </option>
+        </select>
+        <div></div>
+        <input type="button" value="Delete" />
+    </fieldset>
+</div>
+        `
+
+        /** edits participant entry */
+        Vue.component(
+            COMP.PART_EDIT,
+            {
+                template,
+                // no props - it's a singleton
+                data: () => ( { entry: app_state.entry, } ),
+            }
+        )
+
+    } )()
+
+    // IIFE for participant list component
+    ; ( function () {
+
+        const template = `
+<div id="list">
+    <fieldset>
+        <legend>Participants</legend>
+        <table>
+            <thead>
+                <tr>
+                    <th>First Name</th>
+                    <th>Last Name</th>
+                    <th>Number of Tickets</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- TODO: style="font-size: 1.25em; font-weight: bold;" on selected row -->
+                <tr
+                    v-for="entrant in entrants"
+                >
+                    <td>{{ entrant.fname }}</td>
+                    <td>{{ entrant.lname }}</td>
+                    <td>{{ entrant.tickets }}</td>
+                </tr>
+            </tbody>
+            <tfoot>
+                <tr>
+                    <th>
+                        <input type="button" value="Add" />
+                    </th>
+                </tr>
+            </tfoot>
+        </table>
+    </fieldset>
+</div>
+        `
+
+        // TODO - nested, repeating, component with properties for the individual rows
+
+        /** lists participants */
+        Vue.component(
+            COMP.PART_LIST,
+            {
+                template,
+                // no props - it's a singleton
+                data: () => ( { entrants: app_state.entrants, } ),
+            }
+        )
+
+    } )()
+
+    // IIFE for page footer component
+    ; ( function () {
+
+        const template = `
+<div id="ftr">
+    <p>
+        Copyright {{ meta.cr_yr }}, {{ meta.corp_alias }},
+        void where prohibited by law...
+    </p>
+</div>
+        `
+
+        /** page footer */
+        Vue.component(
+            COMP.PG_FTR,
+            {
+                template,
+                // no props - it's a singleton
+                data: () => ( { meta: app_state.meta, } ),
+            }
+        )
+
+    } )()
+
+    // make sure components (above) are defined *before* you start the app
 
     new Vue( {
 

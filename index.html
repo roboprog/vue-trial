@@ -78,91 +78,12 @@
             <div id="hdr">
                 <h1>Raffle Demo</h1>
             </div>
+            <!-- note that all of the component names in the raffle app have a "raf-" prefix -->
             <raf-msgs></raf-msgs>
-            <!-- TODO - component -->
-            <div id="results">
-                <fieldset>
-                    <legend>Results</legend>
-                    <input type="button" value="Draw" />
-                    <div></div>
-                    <label>Winner:</label>
-                    <span>{{ mod.winner.fname }} {{ mod.winner.lname }}</span>
-                </fieldset>
-            </div>
-            <!-- TODO - component -->
-            <div id="entry">
-                <fieldset>
-                    <!-- using empty divs as spacers, as cannot assign size to br/ -->
-                    <legend>Participant Entry</legend>
-                    <label for="fname">First Name:</label>
-                    <input id="fname" width="20"
-                       v-model="mod.entry.fname"
-                    >
-                    <div></div>
-                    <label for="lname">Last Name:</label>
-                    <input id="lname" width="20"
-                       v-model="mod.entry.lname"
-                    >
-                    <div></div>
-                    <label for="tickets">Number of Tickets:</label>
-                    <!--
-                        see
-                        https://www.undefinednull.com/2014/08/11/a-brief-walk-through-of-the-ng-options-in-angularjs/
-                        as the Angular documentation for ngOptions / ng-options is somewhat opaque.
-                    -->
-                    <select id="tickets"
-                        v-model="mod.entry.tickets"
-                    >
-                        <option
-                            v-for="option in [ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 ]"
-                            v-bind:value="option"
-                        >
-                            {{ option }}
-                        </option>
-                    </select>
-                    <div></div>
-                    <input type="button" value="Delete" />
-                </fieldset>
-            </div>
-            <!-- TODO - component -->
-            <div id="list">
-                <fieldset>
-                    <legend>Participants</legend>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>First Name</th>
-                                <th>Last Name</th>
-                                <th>Number of Tickets</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <!-- TODO: style="font-size: 1.25em; font-weight: bold;" on selected row -->
-                            <tr
-                                v-for="entrant in mod.entrants"
-                            >
-                                <td>{{ entrant.fname }}</td>
-                                <td>{{ entrant.lname }}</td>
-                                <td>{{ entrant.tickets }}</td>
-                            </tr>
-                        </tbody>
-                        <tfoot>
-                            <tr>
-                                <th>
-                                    <input type="button" value="Add" />
-                                </th>
-                            </tr>
-                        </tfoot>
-                    </table>
-                </fieldset>
-            </div>
-            <!-- TODO - component -->
-            <div id="ftr">
-                <p>
-                    Copyright {{ mod.meta.cr_yr }}, {{ mod.meta.corp_alias }},
-                    void where prohibited by law...
-                </p>
-            </div>
+            <raf-res></raf-res>
+            <raf-part-edit></raf-part-edit>
+            <raf-part-list></raf-part-list>
+            <raf-pg-ftr></raf-pg-ftr>
         </div>
     </body>
 </html>
