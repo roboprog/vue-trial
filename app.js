@@ -34,10 +34,22 @@
         /** lists participants */
         PART_LIST: 'raf-part-list',
 
+        /** row in participant list */
+        PART_LIST_ROW: 'raf-part-row',
+
         /** page footer */
         PG_FTR: 'raf-pg-ftr',
 
     } )
+
+    /** synthesize a "key" on a participant for Vue */
+    const gen_part_key = ( part ) => (
+        Object.defineProperty(
+            part,
+            'key',
+            { get: () => ( `${ part.fname }|${ part.lname }` ) }
+        )
+    )
 
     /** global application state (TODO - put in store manager like Vuex) */
     var app_state = {
@@ -65,11 +77,14 @@
         entry: {},  // see below
 
         /** (temp) list of participants / contestants (to be loaded from server) */
-        entrants: [
-            { fname: 'Joe', lname: 'Blow', tickets: 3 },
-            { fname: 'Susan', lname: 'Queue', tickets: 2 },
-            { fname: 'Lucky', lname: 'Strikes', tickets: 7 },
-        ],
+        entrants: R.map(
+            gen_part_key,
+            [
+                { fname: 'Joe', lname: 'Blow', tickets: 3 },
+                { fname: 'Susan', lname: 'Queue', tickets: 2 },
+                { fname: 'Lucky', lname: 'Strikes', tickets: 7 },
+            ]
+        ),
 
     }
 
@@ -195,13 +210,12 @@
             </thead>
             <tbody>
                 <!-- TODO: style="font-size: 1.25em; font-weight: bold;" on selected row -->
-                <tr
+                <${ COMP.PART_LIST_ROW }
                     v-for="entrant in entrants"
+                    v-bind:entrant="entrant"
+                    v-bind:key="entrant.key"
                 >
-                    <td>{{ entrant.fname }}</td>
-                    <td>{{ entrant.lname }}</td>
-                    <td>{{ entrant.tickets }}</td>
-                </tr>
+                </${ COMP.PART_LIST_ROW }>
             </tbody>
             <tfoot>
                 <tr>
@@ -215,7 +229,29 @@
 </div>
         `
 
-        // TODO - nested, repeating, component with properties for the individual rows
+        // IIFE for participant row component
+        ; ( function () {
+
+            const template = `
+<tr>
+    <td>{{ entrant.fname }}</td>
+    <td>{{ entrant.lname }}</td>
+    <td>{{ entrant.tickets }}</td>
+</tr>
+            `
+
+            /** shows participant row */
+            Vue.component(
+                COMP.PART_LIST_ROW,
+                {
+                    template,
+                    props: [
+                        'entrant',
+                    ],
+                }
+            )
+
+        } )()
 
         /** lists participants */
         Vue.component(
