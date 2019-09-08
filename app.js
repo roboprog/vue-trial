@@ -41,16 +41,19 @@
 
     /** global application state (TODO - put in store manager like Vuex) */
     var app_state = {
+        // if it doesn't absolutely need to be in here,
+        // don't put it in here.
+        // this is essentially the app DATA-DIVISION :-)
 
         /** metadata for page header/footer */
-        meta: {
+        meta: Object.freeze( {
 
             /** copyright year */
             cr_yr: 2019,
 
             /** how is the company branded *this* year? */
             corp_alias: 'AcmeCorp',
-        },
+        } ),
 
         /** message list */
         msgs: [],
@@ -258,7 +261,7 @@
         el: '#demo',
 
         /** view model data */
-        data: { mod: app_state },  // TODO - empty object, as state will be in components
+        data: {},  // empty object, as state will be in components
 
     } )
 

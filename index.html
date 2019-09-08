@@ -4,7 +4,12 @@
         <!-- library script CDN refs from https://vuejs.org/v2/guide/#Getting-Started -->
         <!-- work around load timing issue as per https://stackoverflow.com/a/45780935 -->
         <!-- development version, includes helpful console warnings -->
-        <script defer src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js">
+        <!-- TODO - pick a specific version, so the checksum doesn't break -->
+        <script defer
+            src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"
+            crossorigin="anonymous"
+            integrity="sha384-9u9lzb/hr8e14GLHe5TEOrTiH3Qtw5DX2Zw9X/g7cqj81W2McEMx5CKOszxdb8jg"
+        >
         </script>
 <!--
         < !-- production version, optimized for size and speed -- >
