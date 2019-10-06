@@ -339,12 +339,28 @@
         ; ( function () {
 
             const template = `
-<tr>
+<tr
+    v-on:click="sel_row()"
+>
     <td>{{ entrant.fname }}</td>
     <td>{{ entrant.lname }}</td>
     <td>{{ entrant.tickets }}</td>
 </tr>
             `
+
+            /** define event handler functions */
+            const get_event_handlers = function () {
+
+                /** select this row for edit */
+                const sel_row = function () {
+                    const comp = this  // an object - party like it's 1967! (and quickly bind it to something less slippery)
+                    cp_react( app_state.entry, comp.entrant )
+                }
+
+                return {
+                    sel_row,
+                }
+            }
 
             /** shows participant row */
             Vue.component(
@@ -354,6 +370,7 @@
                     props: [
                         'entrant',
                     ],
+                    methods: get_event_handlers(),
                 }
             )
 
