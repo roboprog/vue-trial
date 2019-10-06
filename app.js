@@ -42,6 +42,20 @@
 
     } )
 
+    /** an empty participant entry (must be complete to clear "reactive" data */
+    const EMPTY_PART = {
+
+        /** first name */
+        fname: '',
+
+        /** last name */
+        lname: '',
+
+        /** number of raffle tickets */
+        tickets: 0,
+
+    }
+
     /** synthesize a "key" on a participant for Vue */
     const gen_part_key = ( part ) => (
         Object.defineProperty(
@@ -88,9 +102,37 @@
 
     }
 
-    app_state.msgs.push( 'If something happened, I would tell you here' )
-    app_state.entry = app_state.entrants[ 0 ]  // alias
-    app_state.winner = app_state.entrants[ 0 ]  // alias
+    /**
+     * Copy into "reactive" view model data.
+     * @param dst {object} - the destination view model which has been decorated by Vue to be reactive.
+     * @param src {object} - a source of new properties to be copied into the view model.
+     */
+    const cp_react = function ( dst, src ) {
+        R.mapObjIndexed(
+            function ( val, key ) {
+                // TODO - detect and cope with array properties
+                dst[ key ]= val
+            },
+            src
+        )
+    }
+
+    /** clear message list */
+    const clear_msgs = function () {
+        // work around Vue array reactivity constraints
+        while ( app_state.msgs.length ) {
+            app_state.msgs.shift()  // toss any & all
+        }
+    }
+
+    /** add a message to show */
+    const add_msg = function ( msg ) {
+        app_state.msgs.push( msg )
+    }
+
+    add_msg( 'If something happened, I would tell you here' )
+    cp_react( app_state.entry, EMPTY_PART )
+    cp_react( app_state.winner, EMPTY_PART )
 
     // IIFE for message component
     ; ( function () {
@@ -126,13 +168,76 @@
 <div id="results">
     <fieldset>
         <legend>Results</legend>
-        <input type="button" value="Draw" />
+        <input type="button" value="Draw"
+            v-on:click="run_raffle()"
+        />
         <div></div>
         <label>Winner:</label>
         <span>{{ winner.fname }} {{ winner.lname }}</span>
     </fieldset>
 </div>
         `
+
+        /** define event handler functions */
+        const get_event_handlers = function () {
+
+            /** run the raffle, randomly select a winner */
+            const run_raffle = function () {
+
+                /**
+                 * Expand an entrant's entry N times, based upon number of tickets.
+                 * @param entrant - the raffle entrant record
+                 */
+                const expander = ( entrant ) => (
+                    R.map(
+                        ( ignore ) => ( entrant ),
+                        R.range( 0, entrant.tickets )
+                    )
+                )
+
+                /**
+                 * Return a random integer between 0 to N-1
+                 * @param limit - the N which the result must be less than
+                 */
+                const bounded_rand_whole = ( limit ) => (
+                    Math.floor(
+                        Math.random() * limit
+                    )
+                )
+
+                clear_msgs()
+                add_msg( 'Selecting raffle winner...' )
+                cp_react( app_state.winner, EMPTY_PART )
+
+                /** basket of entries - N tickets per entrant */
+                const basket = R.flatten(
+                    R.map(
+                        expander,
+                        app_state.entrants
+                    )
+                )
+                add_msg( 'Sifting through ' + basket.length + ' tickets...' )
+
+                // pretend this takes time...
+                setTimeout(
+                    function () {
+                        clear_msgs()
+                        add_msg( 'We have a winner!' )
+                        cp_react(
+                            app_state.winner,
+                            basket[
+                                bounded_rand_whole( basket.length )
+                            ]
+                        )
+                    },
+                    3000
+                )
+            }
+
+            return {
+                run_raffle,
+            }
+        }
 
         /** generates and displays results of raffle */
         Vue.component(
@@ -141,6 +246,7 @@
                 template,
                 // no props - it's a singleton
                 data: () => ( { winner: app_state.winner, } ),
+                methods: get_event_handlers(),
             }
         )
 
