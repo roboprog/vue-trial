@@ -43,7 +43,10 @@
     } )
 
     /** an empty participant entry (must be complete to clear "reactive" data */
-    const EMPTY_PART = {
+    const EMPTY_PART = Object.freeze( {
+
+        /** internal ID - perhaps from a database??? */
+        id: 0,
 
         /** first name */
         fname: '',
@@ -54,53 +57,79 @@
         /** number of raffle tickets */
         tickets: 0,
 
-    }
+    } )
 
     /** synthesize a "key" on a participant for Vue */
     const gen_part_key = ( part ) => (
         Object.defineProperty(
             part,
+            /** a synthetic ID for Vue.js to recognize instances in a list */
             'key',
-            { get: () => ( `${ part.fname }|${ part.lname }` ) }
+            { get: () => ( part.id ) }  // this changed, but hide what it is today from the view template
         )
     )
 
     /** global application state (TODO - put in store manager like Vuex) */
-    var app_state = {
-        // if it doesn't absolutely need to be in here,
-        // don't put it in here.
-        // this is essentially the app DATA-DIVISION :-)
-
-        /** metadata for page header/footer */
-        meta: Object.freeze( {
+    var app_state = ( function () {
+        const meta = Object.freeze( {
 
             /** copyright year */
             cr_yr: 2019,
 
             /** how is the company branded *this* year? */
             corp_alias: 'AcmeCorp',
-        } ),
-
-        /** message list */
-        msgs: [],
-
-        /** raffle winner */
-        winner: {},  // see below
-
-        /** form entry buffer */
-        entry: {},  // see below
-
-        /** (temp) list of participants / contestants (to be loaded from server) */
-        entrants: R.map(
-            gen_part_key,
+        } )
+        var part_seq = 0
+        var entrants = R.map(
+            R.pipe(
+                function ( part ) {
+                    part.id = ( ++ part_seq )  // MUTATE! / decorate
+                    return part
+                },
+                gen_part_key
+            ),
             [
                 { fname: 'Joe', lname: 'Blow', tickets: 3 },
                 { fname: 'Susan', lname: 'Queue', tickets: 2 },
                 { fname: 'Lucky', lname: 'Strikes', tickets: 7 },
             ]
-        ),
+        )
+        return {
+            // if it doesn't absolutely need to be in here,
+            // don't put it in here.
+            // this is essentially the app DATA-DIVISION :-)
 
+            /** metadata for page header/footer */
+            meta,
+
+            /** message list */
+            msgs: [],
+
+            /** raffle winner */
+            winner: {},  // see below
+
+            /** form entry buffer */
+            entry: {},  // see below
+
+            /** DB sequence emulation */
+            part_seq,
+
+            /** (temp) list of participants / contestants (to be loaded from server) */
+            entrants,
+
+        }
+    } )()
+
+    /** emulate a database sequence for participants (since no actual server backing this) */
+    const next_part = function () {
+        return (
+            ++ app_state.part_seq  // MUTATE!
+        )
     }
+
+    app_state.entrants.forEach( function ( part ) {
+        part.id = next_part()
+    } )
 
     /**
      * Copy into "reactive" view model data.
@@ -281,12 +310,37 @@
                 {{ option }}
             </option>
         </select>
-        <div></div>
-        <input type="button" value="Delete" />
+        <div
+            v-if="entry.id"
+        >
+            <input type="button" value="Save"
+                v-on:click="save()"
+            />
+            <input type="button" value="Delete" style="float: right" />
+        </div>
     </fieldset>
 </div>
         `
 
+        /** define event handler functions */
+        const get_event_handlers = function () {
+
+            /** save any edits in the currently selected row */
+            const save = function () {
+                const comp = this  // no to OOP!
+                cp_react(
+                    R.find(
+                        R.propEq( 'id', comp.entry.id ),
+                        app_state.entrants
+                    ),
+                    comp.entry
+                )
+            }
+
+            return {
+                save,
+            }
+        }
         /** edits participant entry */
         Vue.component(
             COMP.PART_EDIT,
@@ -294,6 +348,7 @@
                 template,
                 // no props - it's a singleton
                 data: () => ( { entry: app_state.entry, } ),
+                methods: get_event_handlers(),
             }
         )
 
