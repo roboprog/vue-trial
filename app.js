@@ -127,10 +127,6 @@
         )
     }
 
-    app_state.entrants.forEach( function ( part ) {
-        part.id = next_part()
-    } )
-
     /**
      * Copy into "reactive" view model data.
      * @param dst {object} - the destination view model which has been decorated by Vue to be reactive.
