@@ -146,6 +146,12 @@
         )
     }
 
+    /** clear out a participant view-model */
+    const clear_part = R.partialRight(
+        cp_react,
+        [ EMPTY_PART ]
+    )
+
     /** clear message list */
     const clear_msgs = function () {
         // work around Vue array reactivity constraints
@@ -160,8 +166,8 @@
     }
 
     add_msg( 'If something happened, I would tell you here' )
-    cp_react( app_state.entry, EMPTY_PART )
-    cp_react( app_state.winner, EMPTY_PART )
+    clear_part( app_state.entry )
+    clear_part( app_state.winner )
 
     // IIFE for message component
     ; ( function () {
@@ -236,7 +242,7 @@
 
                 clear_msgs()
                 add_msg( 'Selecting raffle winner...' )
-                cp_react( app_state.winner, EMPTY_PART )
+                clear_part( app_state.winner )
 
                 /** basket of entries - N tickets per entrant */
                 const basket = R.flatten(
@@ -316,7 +322,9 @@
             <input type="button" value="Save"
                 v-on:click="save()"
             />
-            <input type="button" value="Delete" style="float: right" />
+            <input type="button" value="Delete" style="float: right"
+                v-on:click="rm()"
+            />
         </div>
     </fieldset>
 </div>
@@ -325,20 +333,41 @@
         /** define event handler functions */
         const get_event_handlers = function () {
 
+            /** generate a function to match the ID of the currently selected row */
+            const _id_matcher = function () {
+                const comp = this  // OOP shim :-(
+                return R.propEq( 'id', comp.entry.id )
+            }
+
             /** save any edits in the currently selected row */
             const save = function () {
                 const comp = this  // no to OOP!
                 cp_react(
                     R.find(
-                        R.propEq( 'id', comp.entry.id ),
+                        comp._id_matcher(),
                         app_state.entrants
                     ),
                     comp.entry
                 )
             }
 
+            /** delete / remove the currently selected row */
+            const rm = function () {
+                const comp = this  // no to OOP!
+                app_state.entrants.splice(
+                    R.findIndex(
+                        comp._id_matcher(),
+                        app_state.entrants
+                    ),
+                    1
+                )
+                clear_part( app_state.entry )
+            }
+
             return {
+                _id_matcher,
                 save,
+                rm,
             }
         }
         /** edits participant entry */
