@@ -120,13 +120,6 @@
         }
     } )()
 
-    /** emulate a database sequence for participants (since no actual server backing this) */
-    const next_part = function () {
-        return (
-            ++ app_state.part_seq  // MUTATE!
-        )
-    }
-
     /**
      * Copy into "reactive" view model data.
      * @param dst {object} - the destination view model which has been decorated by Vue to be reactive.
@@ -382,39 +375,6 @@
     // IIFE for participant list component
     ; ( function () {
 
-        const template = `
-<div id="list">
-    <fieldset>
-        <legend>Participants</legend>
-        <table>
-            <thead>
-                <tr>
-                    <th>First Name</th>
-                    <th>Last Name</th>
-                    <th>Number of Tickets</th>
-                </tr>
-            </thead>
-            <tbody>
-                <!-- TODO: style="font-size: 1.25em; font-weight: bold;" on selected row -->
-                <${ COMP.PART_LIST_ROW }
-                    v-for="entrant in entrants"
-                    v-bind:entrant="entrant"
-                    v-bind:key="entrant.key"
-                >
-                </${ COMP.PART_LIST_ROW }>
-            </tbody>
-            <tfoot>
-                <tr>
-                    <th>
-                        <input type="button" value="Add" />
-                    </th>
-                </tr>
-            </tfoot>
-        </table>
-    </fieldset>
-</div>
-        `
-
         // IIFE for participant row component
         ; ( function () {
 
@@ -456,6 +416,67 @@
 
         } )()
 
+        const template = `
+<div id="list">
+    <fieldset>
+        <legend>Participants</legend>
+        <table>
+            <thead>
+                <tr>
+                    <th>First Name</th>
+                    <th>Last Name</th>
+                    <th>Number of Tickets</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- TODO: style="font-size: 1.25em; font-weight: bold;" on selected row -->
+                <${ COMP.PART_LIST_ROW }
+                    v-for="entrant in entrants"
+                    v-bind:entrant="entrant"
+                    v-bind:key="entrant.key"
+                >
+                </${ COMP.PART_LIST_ROW }>
+            </tbody>
+            <tfoot>
+                <tr>
+                    <th>
+                        <input type="button" value="Add"
+                            v-on:click="add()"
+                        />
+                    </th>
+                </tr>
+            </tfoot>
+        </table>
+    </fieldset>
+</div>
+        `
+
+        /** define event handler functions */
+        const get_event_handlers = function () {
+
+            /** add a new participant row */
+            const add = function () {
+
+                /** simulate server side row insert */
+                const sim_insert = function () {
+                    var new_row = R.clone( EMPTY_PART )
+                    new_row.id = ( ++ app_state.part_seq )
+                    new_row = gen_part_key( new_row )
+                    app_state.entrants.push( new_row )
+                    return new_row
+                }
+
+                cp_react(
+                    app_state.entry,
+                    sim_insert()
+                )
+            }
+
+            return {
+                add,
+            }
+        }
+
         /** lists participants */
         Vue.component(
             COMP.PART_LIST,
@@ -463,6 +484,7 @@
                 template,
                 // no props - it's a singleton
                 data: () => ( { entrants: app_state.entrants, } ),
+                methods: get_event_handlers(),
             }
         )
 
